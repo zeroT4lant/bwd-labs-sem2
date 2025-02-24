@@ -1,2 +1,2 @@
 # bwd-labs-sem2
-psuti web labs
+Федосеев Семён Александрович ПРИ-23
