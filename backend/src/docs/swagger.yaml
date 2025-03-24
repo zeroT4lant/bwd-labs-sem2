@@ -1,0 +1,126 @@
+openapi: 3.0.0
+info:
+  title: API для управления мероприятиями и пользователями
+  version: 1.0.0
+  description: Документация для API мероприятий и пользователей
+servers:
+  - url: 'http://localhost:5000/api'
+
+paths:
+  /events:
+    get:
+      summary: Получить список всех мероприятий
+      responses:
+        '200':
+          description: Успешный ответ с данными всех мероприятий
+    post:
+      summary: Создать новое мероприятие
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                createdBy:
+                  type: string
+      responses:
+        '201':
+          description: Мероприятие успешно создано
+
+  /events/{id}:
+    get:
+      summary: Получить мероприятие по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Мероприятие найдено
+        '404':
+          description: Мероприятие не найдено
+    put:
+      summary: Обновить мероприятие по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                createdBy:
+                  type: string
+      responses:
+        '200':
+          description: Мероприятие успешно обновлено
+        '404':
+          description: Мероприятие не найдено
+    delete:
+      summary: Удалить мероприятие по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Мероприятие успешно удалено
+        '404':
+          description: Мероприятие не найдено
+
+  /users:
+    post:
+      summary: Создать нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '201':
+          description: Пользователь успешно создан
+
+  /users/{id}:
+    get:
+      summary: Получить информацию о пользователе по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Пользователь найден
+        '404':
+          description: Пользователь не найден
