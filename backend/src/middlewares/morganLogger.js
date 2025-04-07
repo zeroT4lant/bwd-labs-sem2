@@ -1,3 +1,3 @@
-const morgan = require('morgan');
+import morgan from 'morgan';
 
-module.exports = morgan(':method :url :status :response-time ms');
+export default morgan(':method :url :status :response-time ms');

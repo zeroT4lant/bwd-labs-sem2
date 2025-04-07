@@ -1,18 +1,18 @@
-const express = require('express');
-const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
-const yaml = require('js-yaml');
-const fs = require('fs');
-const routes = require('./routes');
-const errorHandler = require('./middlewares/errorHandler');
-const morganLogger = require('./middlewares/morganLogger');
-const rateLimit = require('express-rate-limit');
+import express, { json } from 'express';
+import cors from 'cors';
+import { serve, setup } from 'swagger-ui-express';
+import { load } from 'js-yaml';
+import { readFileSync } from 'fs';
+import routes from './routes/index.js';
+import errorHandler from './middlewares/errorHandler.js';
+import morganLogger from './middlewares/morganLogger.js';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 
 // Swagger
-const swaggerDocument = yaml.load(fs.readFileSync('./src/docs/swagger.yaml', 'utf8'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const swaggerDocument = load(readFileSync('./src/docs/swagger.yaml', 'utf8'));
+app.use('/api-docs', serve, setup(swaggerDocument));
 
 const limiter = rateLimit({
     windowMs: 60 * 1000, // 1 минута
@@ -23,7 +23,7 @@ const limiter = rateLimit({
 });
 
 // Middleware
-app.use(express.json());
+app.use(json());
 app.use(cors());
 app.use(morganLogger);
 app.use(limiter);
@@ -33,4 +33,4 @@ app.use(errorHandler);
 
 
 
-module.exports = app;
+export default app;

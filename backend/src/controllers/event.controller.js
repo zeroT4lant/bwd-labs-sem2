@@ -1,4 +1,5 @@
-const { Event, User } = require('../models');
+import { Event, User } from '../models/index.js';
+
 
 // Получить все мероприятия с пагинацией
 const getAllEvents = async (req, res, next) => {
@@ -110,7 +111,7 @@ const deleteEvent = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   getAllEvents,
   getEventById,
   createEvent,

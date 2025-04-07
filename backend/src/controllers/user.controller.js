@@ -1,4 +1,4 @@
-const { User } = require('../models');
+import { User } from '../models/index.js';
 
 // Создание пользователя
 const createUser = async (req, res, next) => {
@@ -21,6 +21,8 @@ const createUser = async (req, res, next) => {
   }
 };
 
+
+
 // Получение пользователя по ID
 const getUserById = async (req, res, next) => {
   const { id } = req.params;
@@ -37,7 +39,8 @@ const getUserById = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   createUser,
   getUserById,
 };
+
