@@ -1,12 +1,15 @@
 // routes/index.js
-const express = require('express');
-const userRoutes = require('./user.routes');
-const eventRoutes = require('./event.routes');
+import { Router } from 'express';
+import publicRoutes from './public.routes.js'
+import userRoutes from './user.routes.js';
+import eventRoutes from './event.routes.js';
+import authRoutes from './auth.routes.js';
 
-const router = express.Router();
+const router = Router();
 
 // Подключаем маршруты пользователей и мероприятий
+router.use('/public',publicRoutes)
 router.use('/users', userRoutes);
 router.use('/events', eventRoutes);
-
-module.exports = router;
+router.use('/auth',authRoutes)
+export default router;
