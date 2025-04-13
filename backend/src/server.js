@@ -10,7 +10,7 @@ const startServer = async () => {
   
   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
 };
-app.get('/', (req, res) => {
+app.get('/', (res) => {
   res.json({ message: 'Server is running!' });
 });
 startServer();

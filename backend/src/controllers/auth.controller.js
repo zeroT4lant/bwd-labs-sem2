@@ -1,16 +1,9 @@
-//routes/auth.js
-import express from 'express';
-import bcrypt from 'bcryptjs';
+import { compare } from 'bcryptjs';
+import {User} from '../models/index.js';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js'; // Импортируйте модель User
-import dotenv from 'dotenv';
-
-dotenv.config();
-const router = express.Router();
-
 
 // Эндпоинт для регистрации
-router.post('/register', async (req, res) => {
+const registerUser =  async (req, res) => {
     const { email, username, password, name } = req.body;
 
     // Проверка на заполнение всех полей
@@ -56,10 +49,10 @@ router.post('/register', async (req, res) => {
 
         res.status(500).json({ message: 'Ошибка сервера' });
     }
-});
+};
 
 // Эндпоинт для авторизации
-router.post('/login', async (req, res) => {
+const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     // Проверка на заполнение всех полей
@@ -125,6 +118,9 @@ router.post('/login', async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
     }
-});
+};
 
-export default router;
+export {
+    registerUser,
+    loginUser,
+  };

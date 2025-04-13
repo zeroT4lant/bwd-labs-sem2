@@ -2,10 +2,10 @@ import { User } from '../models/index.js';
 
 // Создание пользователя
 const createUser = async (req, res, next) => {
-  const { name, email } = req.body;
+  const { name, email,password } = req.body;
 
-  if (!name || !email) {
-    return res.status(400).json({message: 'email и имя обязательны'});
+  if (!name || !email || !password)  {
+    return res.status(400).json({message: 'email, имя и пароль обязательны'});
   }
 
   try {
@@ -14,7 +14,7 @@ const createUser = async (req, res, next) => {
       return res.status(400).json({message: 'Такой email уже есть'});
     }
 
-    const newUser = await User.create({ name, email });
+    const newUser = await User.create({ name, email, password });
     res.status(201).json({ message: 'Пользователь успешно создан', user: newUser });
   } catch (error) {
     next(error);
