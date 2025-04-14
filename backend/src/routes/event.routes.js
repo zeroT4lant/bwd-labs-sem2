@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent } from '../controllers/event.controller.js';
-import passport from 'passport';
 import { authenticateJWT } from '../middlewares/authMiddleware.js';
 
 const router = Router();

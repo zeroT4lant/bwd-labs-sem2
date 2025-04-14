@@ -1,4 +1,4 @@
-import { compare } from 'bcryptjs';
+//import { compare } from 'bcryptjs';
 import {User} from '../models/index.js';
 import jwt from 'jsonwebtoken';
 

@@ -10,11 +10,46 @@ paths:
   /events:
     get:
       summary: Получить список всех мероприятий
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Количество мероприятий на странице
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      
       responses:
         '200':
           description: Успешный ответ с данными всех мероприятий
+        '401':
+          description: Не авторизован (отсутствует или неверный JWT-токен)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Ошибка сервера  
     post:
       summary: Создать новое мероприятие
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -34,10 +69,26 @@ paths:
       responses:
         '201':
           description: Мероприятие успешно создано
+        '400':
+          description: Ошибка в запросе  
+        '401':
+          description: Не авторизован (отсутствует или неверный JWT-токен)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized"
+        '500':
+          description: Ошибка сервера  
 
   /events/{id}:
     get:
       summary: Получить мероприятие по ID
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -51,6 +102,8 @@ paths:
           description: Мероприятие не найдено
     put:
       summary: Обновить мероприятие по ID
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -80,6 +133,8 @@ paths:
           description: Мероприятие не найдено
     delete:
       summary: Удалить мероприятие по ID
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -109,6 +164,10 @@ paths:
       responses:
         '201':
           description: Пользователь успешно создан
+        '400':
+          description: Ошибка в запросе
+        '500':
+          description: Ошибка сервера        
 
   /users/{id}:
     get:
@@ -124,3 +183,62 @@ paths:
           description: Пользователь найден
         '404':
           description: Пользователь не найден
+
+  /auth/register:
+    post:
+      summary: Регистрация нового пользователя (только для администратора)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+        '400':
+          description: Пользователь с таким email уже существует
+        '500':
+          description: Ошибка сервера    
+
+  /auth/login:
+    post:
+      summary: Авторизация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Успешная авторизация, возвращает токен
+        '400':
+          description: Ошибка валидации (отсутствует email или пароль)
+        '404':
+          description: Пользователь не найден
+        '401':
+          description: Неверный пароль
+        '500':
+          description: Ошибка сервера    
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT        
