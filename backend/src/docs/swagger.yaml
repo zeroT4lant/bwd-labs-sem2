@@ -7,6 +7,34 @@ servers:
   - url: 'http://localhost:5000/api'
 
 paths:
+  /public/events:
+    get:
+      summary: Получить список всех мероприятий без защиты
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы (начиная с 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Количество мероприятий на странице
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      
+      responses:
+        '200':
+          description: Успешный ответ с данными всех мероприятий
+        '500':
+          description: Ошибка сервера  
+
   /events:
     get:
       summary: Получить список всех мероприятий
@@ -64,8 +92,6 @@ paths:
                 date:
                   type: string
                   format: date
-                createdBy:
-                  type: string
       responses:
         '201':
           description: Мероприятие успешно создано
@@ -124,8 +150,6 @@ paths:
                 date:
                   type: string
                   format: date
-                createdBy:
-                  type: string
       responses:
         '200':
           description: Мероприятие успешно обновлено
@@ -161,6 +185,8 @@ paths:
                   type: string
                 email:
                   type: string
+                password:
+                  type: string
       responses:
         '201':
           description: Пользователь успешно создан
@@ -186,7 +212,7 @@ paths:
 
   /auth/register:
     post:
-      summary: Регистрация нового пользователя (только для администратора)
+      summary: Регистрация нового пользователя 
       security:
         - BearerAuth: []
       requestBody:

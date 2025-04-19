@@ -1,4 +1,5 @@
 import { Event, User } from '../models/index.js';
+import jwt from 'jsonwebtoken';
 
 
 // Получить все мероприятия с пагинацией
@@ -61,16 +62,44 @@ const getEventById = async (req, res, next) => {
 
 // Создать мероприятие
 const createEvent = async (req, res, next) => {
-  const { title, description, date, createdBy } = req.body;
+  const { title, description, date } = req.body;
 
-  if (!title || !date || !createdBy) {
-    throw res.status(400).json({message: 'Обязательные данные не переданы'});
+  if (!title || !date) {
+    return res.status(400).json({ message: 'Обязательные данные не переданы' });
   }
 
   try {
-    const event = await Event.create({ title, description, date, createdBy });
+    // Получаем токен из заголовка
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Токен не предоставлен' });
+    }
+
+    // Проверяем и расшифровываем токен
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Расшифрованный токен:', decoded); // Выводим расшифрованный токен
+    
+    if (!decoded?.id) {
+      return res.status(401).json({ message: 'Неверный формат токена' });
+    }
+    
+    const userId = decoded.id;
+
+    const event = await Event.create({ 
+      title, 
+      description, 
+      date, 
+      createdBy: userId
+    });
+
     res.status(201).json(event);
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
     next(error);
   }
 };
