@@ -4,10 +4,10 @@ import jwt from 'jsonwebtoken';
 
 // Эндпоинт для регистрации
 const registerUser =  async (req, res) => {
-    const { email, username, password, name } = req.body;
+    const { email, password, name } = req.body;
 
     // Проверка на заполнение всех полей
-    if (!email || !username || !password || !name) {
+    if (!email || !password || !name) {
         return res.status(400).json({ message: 'Заполните все поля' });
     }
 
@@ -26,7 +26,6 @@ const registerUser =  async (req, res) => {
         // Создание нового пользователя с инициализацией полей failed_attempts, is_locked и lock_until
         const user = await User.create({
             email,
-            username,
             password,
             name,
             failed_attempts: 0, // Инициализация счетчика неудачных попыток
@@ -113,7 +112,7 @@ const loginUser = async (req, res) => {
 
         // Генерация JWT
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ message: 'Авторизация успешна', token });
+        res.json({ message: 'Авторизация успешна', token, user_id: user.id });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Ошибка сервера' });
