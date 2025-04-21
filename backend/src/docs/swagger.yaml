@@ -213,8 +213,6 @@ paths:
   /auth/register:
     post:
       summary: Регистрация нового пользователя 
-      security:
-        - BearerAuth: []
       requestBody:
         required: true
         content:

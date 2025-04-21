@@ -104,23 +104,48 @@ const createEvent = async (req, res, next) => {
   }
 };
 
-// Обновление мероприятия
 const updateEvent = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, date, createdBy } = req.body;
+  const { title, description, date } = req.body;
 
-  if (!title || !date || !createdBy) {
-    throw res.status(400).json({message: 'Обязательные данные не переданы'});
+  if (!title || !date) {
+    return res.status(400).json({ message: 'Обязательные данные не переданы' });
   }
 
   try {
+    // Проверка токена
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Токен не предоставлен' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded?.id) {
+      return res.status(401).json({ message: 'Неверный формат токена' });
+    }
+    const userId = decoded.id;
+
+    // Поиск мероприятия
     const event = await Event.findByPk(id);
     if (!event) {
-      throw res.status(404).json({message: 'Мероприятие не найдено'});
+      return res.status(404).json({ message: 'Мероприятие не найдено' });
     }
-    await event.update({ title, description, date, createdBy });
+
+    // Проверка прав доступа
+    if (event.createdBy !== userId) {
+      return res.status(403).json({ message: 'Недостаточно прав для изменения мероприятия' });
+    }
+
+    // Обновление
+    await event.update({ title, description, date });
     res.status(200).json(event);
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
     next(error);
   }
 };
@@ -128,14 +153,41 @@ const updateEvent = async (req, res, next) => {
 // Удаление мероприятия
 const deleteEvent = async (req, res, next) => {
   const { id } = req.params;
+
   try {
+    // Проверка токена
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Токен не предоставлен' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded?.id) {
+      return res.status(401).json({ message: 'Неверный формат токена' });
+    }
+    const userId = decoded.id;
+
+    // Поиск мероприятия
     const event = await Event.findByPk(id);
     if (!event) {
-      throw res.status(404).json({message: 'Мероприятие не найдено'});
+      return res.status(404).json({ message: 'Мероприятие не найдено' });
     }
+
+    // Проверка прав доступа
+    if (event.createdBy !== userId) {
+      return res.status(403).json({ message: 'Недостаточно прав для удаления мероприятия' });
+    }
+
+    // Удаление
     await event.destroy();
     res.status(204).send();
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
     next(error);
   }
 };
