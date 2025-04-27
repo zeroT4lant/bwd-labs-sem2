@@ -133,11 +133,9 @@ const loginUser = async (
       });
 
       if (shouldLock) {
-        return res
-          .status(403)
-          .json({
-            message: 'Аккаунт заблокирован. Попробуйте через 30 минут.',
-          });
+        return res.status(403).json({
+          message: 'Аккаунт заблокирован. Попробуйте через 30 минут.',
+        });
       }
 
       return res.status(401).json({ message: 'Неверный email или пароль' });
