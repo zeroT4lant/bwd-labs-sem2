@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Event, User } from '@models/index';
 
-// Интерфейсы для типов
 interface PaginationQuery {
   page?: string;
   limit?: string;
@@ -22,7 +21,6 @@ interface UpdateEventBody {
   title: string;
   description?: string;
   date: string;
-  createdBy: number;
 }
 
 interface JwtPayload {
@@ -30,7 +28,6 @@ interface JwtPayload {
   [key: string]: any;
 }
 
-// Вспомогательная функция для валидации даты
 const parseAndValidateDate = (dateString: string): Date => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
@@ -39,7 +36,6 @@ const parseAndValidateDate = (dateString: string): Date => {
   return date;
 };
 
-// Получить все мероприятия с пагинацией
 const getAllEvents = async (
   req: Request<{}, {}, {}, PaginationQuery>,
   res: Response,
@@ -81,7 +77,6 @@ const getAllEvents = async (
   }
 };
 
-// Получить мероприятие по ID
 const getEventById = async (
   req: Request<EventParams>,
   res: Response,
@@ -108,7 +103,6 @@ const getEventById = async (
   }
 };
 
-// Создать новое мероприятие
 const createEvent = async (
   req: Request<{}, {}, CreateEventBody>,
   res: Response,
@@ -130,6 +124,7 @@ const createEvent = async (
       token,
       process.env.JWT_SECRET as string,
     ) as JwtPayload;
+
     if (!decoded?.id) {
       return res.status(401).json({ message: 'Неверный токен' });
     }
@@ -168,25 +163,42 @@ const createEvent = async (
   }
 };
 
-// Обновить мероприятие
 const updateEvent = async (
   req: Request<EventParams, {}, UpdateEventBody>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { title, description, date } = req.body;
     const { id } = req.params;
-    const { title, description, date, createdBy } = req.body;
 
-    if (!title || !date || !createdBy) {
-      return res
-        .status(400)
-        .json({ message: 'Все обязательные поля должны быть заполнены' });
+    if (!title || !date) {
+      return res.status(400).json({ message: 'Название и дата обязательны' });
+    }
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Требуется авторизация' });
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as JwtPayload;
+
+    if (!decoded?.id) {
+      return res.status(401).json({ message: 'Неверный токен' });
     }
 
     const event = await Event.findByPk(id);
     if (!event) {
       return res.status(404).json({ message: 'Мероприятие не найдено' });
+    }
+
+    if (event.createdBy !== decoded.id) {
+      return res
+        .status(403)
+        .json({ message: 'Нет доступа для редактирования' });
     }
 
     const eventDate = parseAndValidateDate(date);
@@ -195,7 +207,6 @@ const updateEvent = async (
       title,
       description,
       date: eventDate,
-      createdBy,
     });
 
     const updatedEvent = await Event.findByPk(id, {
@@ -210,6 +221,12 @@ const updateEvent = async (
 
     res.status(200).json(updatedEvent);
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
     if (error instanceof Error && error.message === 'Неверный формат даты') {
       return res.status(400).json({ message: error.message });
     }
@@ -217,21 +234,44 @@ const updateEvent = async (
   }
 };
 
-// Удалить мероприятие
 const deleteEvent = async (
   req: Request<EventParams>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Требуется авторизация' });
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as JwtPayload;
+
+    if (!decoded?.id) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+
     const event = await Event.findByPk(req.params.id);
     if (!event) {
       return res.status(404).json({ message: 'Мероприятие не найдено' });
     }
 
+    if (event.createdBy !== decoded.id) {
+      return res.status(403).json({ message: 'Нет доступа для удаления' });
+    }
+
     await event.destroy();
     res.status(204).end();
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
     next(error);
   }
 };
