@@ -1,10 +1,5 @@
 {
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
-    "swagger-ui-express": "^5.0.1"
+    "react-router-dom": "^7.5.3"
   }
 }
