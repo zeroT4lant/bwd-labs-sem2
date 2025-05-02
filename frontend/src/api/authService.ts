@@ -16,7 +16,7 @@ export const register = async (email: string, name: string, password: string) =>
 // authService.ts
 export const getUser = async (): Promise<User> => {
   const response = await axiosInstance.get('/api/auth/me');
-  return response.data;
+  return response.data.user;
 };
 
 export const logout = () => {
