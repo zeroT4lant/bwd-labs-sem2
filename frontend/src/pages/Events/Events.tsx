@@ -6,17 +6,20 @@ import styles from './Events.module.scss';
 import EventList from './components/EventList';
 import { Link } from 'react-router-dom';
 import CreateEventModal from './components/CreateEventModal';
-import { User } from '../../types/user';
 import { Events as IEvents, Event } from '../../types/event';
+import { setUser } from '../../store/slices/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from 'src/store';
 
 const Events = () => {
+  const dispatch = useDispatch()
   const [events, setEvents] = useState<IEvents>();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [user, setUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const user = useSelector((state: RootState) => state.user.currentUser)
 
   const loadEvents = async (page: number = 1) => {
     setLoading(true);
@@ -56,11 +59,9 @@ const Events = () => {
   useEffect(() => {
     loadEvents(currentPage);
     getUser()
-      .then(setUser)
+      .then((user) => {dispatch(setUser(user))})
       .catch((error) => console.error('Ошибка при загрузке пользователя:', error));
   }, []);
-
-  console.log(user)
 
   // Функция для отображения номеров страниц
   const renderPageNumbers = () => {

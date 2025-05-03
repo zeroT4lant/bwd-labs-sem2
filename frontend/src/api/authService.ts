@@ -39,3 +39,7 @@ export const verifyToken = async (): Promise<boolean> => {
     return false;
   }
 };
+export const updateUserProfile = async (userData: Partial<User>): Promise<User> => {
+  const response = await axiosInstance.put(`/auth/update`, userData);
+  return response.data;
+};

@@ -6,11 +6,16 @@ import Register from "@pages/Register/Register";
 import Events from "@pages/Events/Events";
 import NotFound from "@pages/NotFound/NotFound";
 import ForgotPasswordPage from "@pages/ForgotPassword/ForgotPasswordPage"
+import { Profile } from "@pages/Profile/Profile";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
   },
   {
     path: "/login",
