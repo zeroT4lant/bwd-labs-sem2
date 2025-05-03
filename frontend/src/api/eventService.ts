@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 //events.Service.ts
 import axiosInstance from './axios';
 
-export const fetchEvents = async () => {
-  const response = await axiosInstance.get('api/public/events');
+export const fetchEvents = async (currentPage: number) => {
+  const response = await axiosInstance.get(`api/public/events?page=${currentPage}`);
   return response.data;
 };
 

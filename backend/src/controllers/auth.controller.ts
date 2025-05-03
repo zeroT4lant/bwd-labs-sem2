@@ -167,4 +167,58 @@ const loginUser = async (
   }
 };
 
-export { registerUser, loginUser };
+const getCurrentUser = async (req: Request, res: Response) => {
+  // Получаем заголовок Authorization
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Токен не предоставлен' });
+  }
+
+  // Проверяем формат заголовка (должен быть "Bearer <token>")
+  const tokenParts = authHeader.split(' ');
+  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+    return res.status(401).json({ message: 'Неверный формат токена' });
+  }
+
+  const token = tokenParts[1];
+
+  try {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET не настроен');
+    }
+
+    // Верифицируем токен
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+    
+    // Находим пользователя в базе данных
+    const user = await User.findByPk(decoded.id, {
+      attributes: ['id', 'name', 'email'], // Возвращаем только нужные поля
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+    // Возвращаем информацию о пользователе
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+    
+    console.error('Ошибка при получении информации о пользователе:', error);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+};
+
+export { registerUser, loginUser, getCurrentUser };

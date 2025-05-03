@@ -62,6 +62,7 @@ const limiter: RateLimitRequestHandler = rateLimit({
 
 // Middleware
 app.use(json());
+app.use(cors());
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || '*',
