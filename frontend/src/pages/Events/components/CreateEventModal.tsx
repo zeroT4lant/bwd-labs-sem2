@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // CreateEventModal.tsx
 import { useState } from 'react';
 import styles from './CreateEventModal.module.scss';
@@ -19,7 +20,7 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
     title: '',
     description: '',
     date: '',
-    category: '' as EventCategory | ''
+    category: 'выставка' as EventCategory | 'выставка'
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,13 +35,6 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-
-    // Валидация на фронтенде
-    if (!formData.category || !['концерт', 'лекция', 'выставка'].includes(formData.category)) {
-      setError('Пожалуйста, выберите допустимую категорию');
-      setIsSubmitting(false);
-      return;
-    }
 
     try {
       await onCreate({
@@ -100,22 +94,6 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
                 onChange={handleChange}
                 required
               />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label>Категория</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-                className={!formData.category ? styles.emptySelect : ''}
-              >
-                <option value="">Выберите категорию</option>
-                <option value="концерт">Концерт</option>
-                <option value="лекция">Лекция</option>
-                <option value="выставка">Выставка</option>
-              </select>
             </div>
           </div>
           

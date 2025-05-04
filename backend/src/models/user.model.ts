@@ -18,9 +18,12 @@ class User
   implements UserInstanceMethods
 {
   declare id: CreationOptional<number>;
-  declare name: string;
+  declare firstName: string;
+  declare lastName: string;
   declare email: string;
   declare password: string;
+  declare birthDate: string;
+  declare gender: string;
   declare failed_attempts: number;
   declare is_locked: boolean;
   declare lock_until: Date | null;
@@ -37,7 +40,19 @@ User.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    name: {
+    firstName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    gender: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    birthDate: {
       type: DataTypes.STRING,
       allowNull: false,
     },

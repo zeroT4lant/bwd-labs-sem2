@@ -9,7 +9,7 @@ export const login = async (email: string, password: string) => {
 };
 
 export const register = async (email: string, name: string, password: string) => {
-  const response = await axiosInstance.post('/api/auth/register', { email, name, password});
+  const response = await axiosInstance.post('/api/auth/register', { email, firstName: name, password, lastName: "familiya", gender: "male", birthDate: ""});
   return response.data;
 };
 
@@ -40,6 +40,6 @@ export const verifyToken = async (): Promise<boolean> => {
   }
 };
 export const updateUserProfile = async (userData: Partial<User>): Promise<User> => {
-  const response = await axiosInstance.put(`/auth/update`, userData);
+  const response = await axiosInstance.put(`/api/auth/update`, userData);
   return response.data;
 };

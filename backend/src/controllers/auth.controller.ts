@@ -4,9 +4,13 @@ import { User } from '@models/index';
 
 // Интерфейсы для типов
 interface RegisterUserBody {
+  name: string;
   email: string;
   password: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  birthDate: string;
 }
 
 interface LoginUserBody {
@@ -24,10 +28,10 @@ const registerUser = async (
   req: Request<{}, {}, RegisterUserBody>,
   res: Response,
 ) => {
-  const { email, password, name } = req.body;
+  const { email, password, firstName, lastName, birthDate, gender } = req.body;
 
   // Проверка на заполнение всех полей
-  if (!email || !password || !name) {
+  if (!email || !password || !firstName) {
     return res.status(400).json({ message: 'Заполните все поля' });
   }
 
@@ -47,17 +51,20 @@ const registerUser = async (
     const user = await User.create({
       email,
       password,
-      name,
+      firstName,
       failed_attempts: 0,
       is_locked: false,
       lock_until: null,
+      lastName,
+      birthDate,
+      gender,
     });
 
     res.status(201).json({
       message: 'Регистрация успешна',
       user: {
         id: user.id,
-        name: user.name,
+        name: user.firstName,
         email: user.email,
       },
     });
@@ -157,7 +164,7 @@ const loginUser = async (
       token,
       user: {
         id: user.id,
-        name: user.name,
+        name: user.firstName,
         email: user.email,
       },
     });
@@ -168,14 +175,12 @@ const loginUser = async (
 };
 
 const getCurrentUser = async (req: Request, res: Response) => {
-  // Получаем заголовок Authorization
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader) {
     return res.status(401).json({ message: 'Токен не предоставлен' });
   }
 
-  // Проверяем формат заголовка (должен быть "Bearer <token>")
   const tokenParts = authHeader.split(' ');
   if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
     return res.status(401).json({ message: 'Неверный формат токена' });
@@ -188,13 +193,11 @@ const getCurrentUser = async (req: Request, res: Response) => {
       throw new Error('JWT_SECRET не настроен');
     }
 
-    // Верифицируем токен
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
-    
-    // Находим пользователя в базе данных
-    const user = await User.findByPk(decoded.id, {
-      attributes: ['id', 'name', 'email'], // Возвращаем только нужные поля
-    });
+    console.log(decoded);
+    const user = await User.findByPk(decoded.id);
+
+    console.log(user);
 
     if (!user) {
       return res.status(404).json({ message: 'Пользователь не найден' });
@@ -204,8 +207,12 @@ const getCurrentUser = async (req: Request, res: Response) => {
     res.json({
       user: {
         id: user.id,
-        name: user.name,
+        name: user.firstName,
+        firstname: user.firstName,
+        lastname: user.lastName,
+        birthDate: user.birthDate,
         email: user.email,
+        gender: user.gender,
       },
     });
   } catch (error) {
@@ -215,10 +222,75 @@ const getCurrentUser = async (req: Request, res: Response) => {
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({ message: 'Неверный токен' });
     }
-    
+
     console.error('Ошибка при получении информации о пользователе:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 };
 
-export { registerUser, loginUser, getCurrentUser };
+const updateUser = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Токен не предоставлен' });
+  }
+
+  const tokenParts = authHeader.split(' ');
+  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+    return res.status(401).json({ message: 'Неверный формат токена' });
+  }
+
+  const token = tokenParts[1];
+
+  const { firstName, lastName, gender, birthDate, email, password } = req.body;
+
+  try {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET не настроен');
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+    console.log(decoded);
+    const user = await User.findByPk(decoded.id);
+
+    console.log(user);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (gender !== undefined) user.gender = gender;
+    if (birthDate !== undefined) user.birthDate = birthDate;
+    if (email !== undefined) user.email = email;
+    if (password !== undefined) user.password = password;
+
+    await user.save();
+
+    // Возвращаем информацию о пользователе
+    res.json({
+      user: {
+        id: user.id,
+        name: user.firstName,
+        firstname: user.firstName,
+        lastname: user.lastName,
+        birthDate: user.birthDate,
+        email: user.email,
+        gender: user.gender,
+      },
+    });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Токен истек' });
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Неверный токен' });
+    }
+
+    console.error('Ошибка при получении информации о пользователе:', error);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+};
+
+export { registerUser, loginUser, getCurrentUser, updateUser };

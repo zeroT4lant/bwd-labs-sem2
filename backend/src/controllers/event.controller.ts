@@ -58,7 +58,7 @@ const getAllEvents = async (
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name', 'email'],
+          attributes: ['id', 'email'],
         },
       ],
       order: [['date', 'ASC']],
@@ -88,7 +88,7 @@ const getEventById = async (
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name', 'email'],
+          attributes: ['id', 'email'],
         },
       ],
     });
@@ -143,7 +143,7 @@ const createEvent = async (
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name', 'email'],
+          attributes: ['id', 'email'],
         },
       ],
     });
@@ -214,7 +214,7 @@ const updateEvent = async (
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name', 'email'],
+          attributes: ['id', 'email'],
         },
       ],
     });

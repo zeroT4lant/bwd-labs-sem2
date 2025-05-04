@@ -6,6 +6,7 @@ import { RootState } from "../../store";
 import { setUser, updateUserAsync } from "../../store/slices/userSlice";
 import styles from "./Profile.module.scss";
 import { getUser } from "@api/authService";
+import { Link } from "react-router-dom";
 
 type FormValues = {
   firstName: string;
@@ -27,11 +28,11 @@ export const Profile: React.FC = () => {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue
+    setValue,
   } = useForm<FormValues>({
     defaultValues: {
-      firstName: currentUser?.name?.split(" ")[0] || "",
-      lastName: currentUser?.name?.split(" ")[1] || "",
+      firstName: currentUser?.name|| "",
+      lastName: currentUser?.lastname || "",
       email: currentUser?.email || "",
       gender: currentUser?.gender || "",
       birthDate: currentUser?.birthDate?.split("T")[0] || "",
@@ -39,19 +40,22 @@ export const Profile: React.FC = () => {
   });
 
   useEffect(() => {
-    setValue("firstName", currentUser?.name.split(" ")[0])
-    setValue("lastName", currentUser?.name.split(" ")[1])
-    setValue("birthDate", currentUser?.birthDate?.split("T")[0])
-    setValue('gender', currentUser?.gender)
-    setValue('email', currentUser?.email)
+    setValue("firstName", currentUser?.name.split(" ")[0]);
+    setValue("lastName", currentUser?.lastname);
+    setValue("birthDate", currentUser?.birthDate?.split("T")[0]);
+    setValue("gender", currentUser?.gender);
+    setValue("email", currentUser?.email);
   }, [currentUser]);
 
-    useEffect(() => {
-      getUser()
-        .then((user) => {dispatch(setUser(user))})
-        .catch((error) => console.error('Ошибка при загрузке пользователя:', error));
-    }, []);
-  
+  useEffect(() => {
+    getUser()
+      .then((user) => {
+        dispatch(setUser(user));
+      })
+      .catch((error) =>
+        console.error("Ошибка при загрузке пользователя:", error)
+      );
+  }, []);
 
   console.log(currentUser?.name.split(" ")[0]);
 
@@ -61,6 +65,9 @@ export const Profile: React.FC = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      console.log(data)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await dispatch(updateUserAsync(data)).unwrap();
       setIsEditing(false);
     } catch (error) {
@@ -70,6 +77,25 @@ export const Profile: React.FC = () => {
 
   return (
     <>
+      <header className={styles.header}>
+        <Link to={"/events"} className={styles.logoContainer}>
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/2452/2452565.png"
+            alt="Логотип"
+            className={styles.logo}
+          />
+          <h1 className={styles.title}>
+            Мои<span>Мероприятия</span>
+          </h1>
+        </Link>
+        <div className={styles.userSection}>
+          <div className={styles.userGreeting}>
+            <span className={styles.welcome}>Добро пожаловать,</span>
+            <span className={styles.userName}>{currentUser.name}</span>
+          </div>
+        </div>
+      </header>
+
       <div className={styles.profile}>
         <h2>Профиль пользователя</h2>
 
@@ -137,8 +163,7 @@ export const Profile: React.FC = () => {
         ) : (
           <div className={styles.info}>
             <p>
-              <strong>Имя и фамилия:</strong>{" "}
-              {`${currentUser.name}`}
+              <strong>Имя и фамилия:</strong> {`${currentUser.name}`}
             </p>
             <p>
               <strong>Email:</strong> {currentUser.email}

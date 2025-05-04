@@ -1,25 +1,25 @@
 // events.tsx
-import { useEffect, useState } from 'react';
-import { fetchEvents, createEvent } from '@api/eventService';
-import { getUser } from '@api/authService';
-import styles from './Events.module.scss';
-import EventList from './components/EventList';
-import { Link } from 'react-router-dom';
-import CreateEventModal from './components/CreateEventModal';
-import { Events as IEvents, Event } from '../../types/event';
-import { setUser } from '../../store/slices/userSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from 'src/store';
+import { useEffect, useState } from "react";
+import { fetchEvents, createEvent } from "@api/eventService";
+import { getUser } from "@api/authService";
+import styles from "./Events.module.scss";
+import EventList from "./components/EventList";
+import { Link } from "react-router-dom";
+import CreateEventModal from "./components/CreateEventModal";
+import { Events as IEvents, Event } from "../../types/event";
+import { setUser } from "../../store/slices/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "src/store";
 
 const Events = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [events, setEvents] = useState<IEvents>();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const user = useSelector((state: RootState) => state.user.currentUser)
+  const user = useSelector((state: RootState) => state.user.currentUser);
 
   const loadEvents = async (page: number = 1) => {
     setLoading(true);
@@ -29,8 +29,8 @@ const Events = () => {
       setFilteredEvents(data.events);
       setCurrentPage(data.currentPage);
     } catch (error) {
-      setError('Ошибка при загрузке мероприятий');
-      console.error('Error fetching events:', error);
+      setError("Ошибка при загрузке мероприятий");
+      console.error("Error fetching events:", error);
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ const Events = () => {
       await createEvent(eventData);
       loadEvents(currentPage);
     } catch (error) {
-      console.error('Ошибка при создании мероприятия:', error);
+      console.error("Ошибка при создании мероприятия:", error);
     }
   };
 
@@ -59,14 +59,18 @@ const Events = () => {
   useEffect(() => {
     loadEvents(currentPage);
     getUser()
-      .then((user) => {dispatch(setUser(user))})
-      .catch((error) => console.error('Ошибка при загрузке пользователя:', error));
+      .then((user) => {
+        dispatch(setUser(user));
+      })
+      .catch((error) =>
+        console.error("Ошибка при загрузке пользователя:", error)
+      );
   }, []);
 
   // Функция для отображения номеров страниц
   const renderPageNumbers = () => {
     if (!events) return null;
-    
+
     const pageNumbers = [];
     const maxPagesToShow = 5; // Максимальное количество отображаемых номеров страниц
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
@@ -81,7 +85,7 @@ const Events = () => {
         <button
           key={i}
           onClick={() => handlePageChange(i)}
-          className={`${styles.pageButton} ${currentPage === i ? styles.active : ''}`}
+          className={`${styles.pageButton} ${currentPage === i ? styles.active : ""}`}
         >
           {i}
         </button>
@@ -104,7 +108,7 @@ const Events = () => {
         >
           &lsaquo;
         </button>
-        
+
         {startPage > 1 && (
           <>
             <button
@@ -116,12 +120,14 @@ const Events = () => {
             {startPage > 2 && <span className={styles.pageDots}>...</span>}
           </>
         )}
-        
+
         {pageNumbers}
-        
+
         {endPage < events.totalPages && (
           <>
-            {endPage < events.totalPages - 1 && <span className={styles.pageDots}>...</span>}
+            {endPage < events.totalPages - 1 && (
+              <span className={styles.pageDots}>...</span>
+            )}
             <button
               onClick={() => handlePageChange(events.totalPages)}
               className={styles.pageButton}
@@ -130,7 +136,7 @@ const Events = () => {
             </button>
           </>
         )}
-        
+
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === events.totalPages}
@@ -152,7 +158,7 @@ const Events = () => {
   return (
     <div className={styles.eventsPage}>
       <div className={styles.backgroundAnimation}></div>
-      
+
       <header className={styles.header}>
         <div className={styles.logoContainer}>
           <img
@@ -160,14 +166,18 @@ const Events = () => {
             alt="Логотип"
             className={styles.logo}
           />
-          <h1 className={styles.title}>Мои<span>Мероприятия</span></h1>
+          <h1 className={styles.title}>
+            Мои<span>Мероприятия</span>
+          </h1>
         </div>
 
         {user ? (
           <div className={styles.userSection}>
             <div className={styles.userGreeting}>
               <span className={styles.welcome}>Добро пожаловать,</span>
-              <span className={styles.userName}>{user.name}</span>
+              <Link to="/profile" className={styles.authButton}>
+                <span className={styles.userName}>{user.name}</span>
+              </Link>
             </div>
           </div>
         ) : (
@@ -176,7 +186,10 @@ const Events = () => {
               <Link to="/login" className={styles.authButton}>
                 Войти
               </Link>
-              <Link to="/register" className={`${styles.authButton} ${styles.registerButton}`}>
+              <Link
+                to="/register"
+                className={`${styles.authButton} ${styles.registerButton}`}
+              >
                 Регистрация
               </Link>
             </div>
@@ -189,8 +202,8 @@ const Events = () => {
           <h2 className={styles.sectionTitle}>Все мероприятия</h2>
           <div className={styles.filterControls}>
             {user && (
-              <button 
-                onClick={() => setIsModalOpen(true)} 
+              <button
+                onClick={() => setIsModalOpen(true)}
                 className={styles.createButton}
               >
                 + Создать мероприятие
@@ -208,9 +221,9 @@ const Events = () => {
           <p className={styles.error}>{error}</p>
         ) : (
           <>
-            <EventList 
-              events={filteredEvents} 
-              onEventUpdate={() => loadEvents(currentPage)} 
+            <EventList
+              events={filteredEvents}
+              onEventUpdate={() => loadEvents(currentPage)}
               user={user}
             />
             {events && events.totalPages > 1 && renderPageNumbers()}

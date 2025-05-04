@@ -5,6 +5,10 @@ interface CreateUserBody {
   name: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  birthDate: string;
 }
 
 const createUser = async (
@@ -12,9 +16,9 @@ const createUser = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, gender, birthDate, email, password } = req.body;
 
-  if (!name || !email || !password) {
+  if (!firstName || !email || !password) {
     return res.status(400).json({ message: 'email, имя и пароль обязательны' });
   }
 
@@ -26,7 +30,10 @@ const createUser = async (
 
     // Создаем пользователя со всеми обязательными полями
     const newUser = await User.create({
-      name,
+      firstName,
+      lastName,
+      gender,
+      birthDate,
       email,
       password,
       failed_attempts: 0, // Добавляем обязательные поля
@@ -38,7 +45,9 @@ const createUser = async (
       message: 'Пользователь успешно создан',
       user: {
         id: newUser.id,
-        name: newUser.name,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        name: newUser.firstName + ' ' + newUser.lastName,
         email: newUser.email,
       },
     });
@@ -63,12 +72,13 @@ const getUserById = async (
 
     res.status(200).json({
       id: user.id,
-      name: user.name,
+      name: user.firstName,
       email: user.email,
     });
   } catch (error) {
     next(error);
   }
 };
+
 
 export { createUser, getUserById };

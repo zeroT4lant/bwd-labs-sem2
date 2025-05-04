@@ -25,7 +25,7 @@ export const updateUserAsync = createAsyncThunk(
         throw new Error('User ID not found');
       }
       const data = {...userData, name: userData.firstName + " " + userData.lastName}
-      const updatedUser = await updateUserProfile(data);
+      const updatedUser = await updateUserProfile(data) as any;
       return updatedUser.user;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update user');

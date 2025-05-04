@@ -85,3 +85,42 @@
       }
     }
   } 
+
+.header {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  padding: 1rem 2rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 5px 15px rgba(67, 97, 238, 0.3));
+    }
+    
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      background: linear-gradient(to right, #535bf2, #535bf2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      
+      span {
+        font-weight: 300;
+      }
+    }
+  }
+}
