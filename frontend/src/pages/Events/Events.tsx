@@ -175,7 +175,7 @@ const Events = () => {
           <div className={styles.userSection}>
             <div className={styles.userGreeting}>
               <span className={styles.welcome}>Добро пожаловать,</span>
-              <Link to="/profile" className={styles.authButton}>
+              <Link to="/profile">
                 <span className={styles.userName}>{user.name}</span>
               </Link>
             </div>

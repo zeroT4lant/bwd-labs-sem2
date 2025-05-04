@@ -176,7 +176,7 @@ export const Profile: React.FC = () => {
               <strong>Дата рождения:</strong>{" "}
               {new Date(currentUser.birthDate).toLocaleDateString()}
             </p>
-            <button onClick={() => setIsEditing(true)}>Редактировать</button>
+            <button onClick={() => setIsEditing(true)} className={styles.button}>Редактировать</button>
           </div>
         )}
       </div>
