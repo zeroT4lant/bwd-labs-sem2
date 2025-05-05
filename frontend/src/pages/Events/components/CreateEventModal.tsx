@@ -35,25 +35,12 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
     setIsSubmitting(true);
     setError('');
 
-    // Валидация на фронтенде
-    if (!formData.category || !['концерт', 'лекция', 'выставка'].includes(formData.category)) {
-      setError('Пожалуйста, выберите допустимую категорию');
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
       await onCreate({
         ...formData,
         category: formData.category as EventCategory
       });
       onClose();
-    } catch (err: any) {
-      if (err.response?.data?.message === 'Недопустимая категория') {
-        setError('Выберите допустимую категорию: концерт, лекция или выставка');
-      } else {
-        setError('Произошла ошибка при создании мероприятия');
-      }
     } finally {
       setIsSubmitting(false);
     }
@@ -103,19 +90,6 @@ const CreateEventModal = ({ onClose, onCreate }: CreateEventModalProps) => {
             </div>
             
             <div className={styles.formGroup}>
-              <label>Категория</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-                className={!formData.category ? styles.emptySelect : ''}
-              >
-                <option value="">Выберите категорию</option>
-                <option value="концерт">Концерт</option>
-                <option value="лекция">Лекция</option>
-                <option value="выставка">Выставка</option>
-              </select>
             </div>
           </div>
           

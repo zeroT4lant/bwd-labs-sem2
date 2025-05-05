@@ -65,12 +65,7 @@ const EventList = ({ events, onEventUpdate, user }: EventListProps) => {
       setEditingEvent(null);
       onEventUpdate();
     } catch (error: any) {
-      if (
-        error.response?.status === 400 &&
-        error.response?.data?.message === "Недопустимая категория"
-      ) {
-        setError("Выберите допустимую категорию: концерт, лекция или выставка");
-      } else if (error.response?.status === 403) {
+       if (error.response?.status === 403) {
         setError("Можно редактировать только свои мероприятия");
       } else {
         setError("Ошибка при обновлении мероприятия");
